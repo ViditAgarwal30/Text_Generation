@@ -1,5 +1,4 @@
 
-# Load Larger LSTM network and generate text
 import sys
 import numpy
 from keras.models import Sequential
@@ -9,25 +8,21 @@ from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 
-# load ascii text and covert to lowercase
 filename = "data_set.txt"
 raw_text = open(filename, 'r', encoding='utf-8').read()
 raw_text = raw_text.lower()
 
-# create mapping of unique chars to integers, and a reverse mapping
 chars = sorted(list(set(raw_text)))
 char_to_int = dict((c, i) for i, c in enumerate(chars))
 int_to_char = dict((i, c) for i, c in enumerate(chars))
 
 
-# summarize the loaded data
 n_chars = len(raw_text)
 n_vocab = len(chars)
 print ("Total Characters: ", n_chars)
 print ("Total Vocab: ", n_vocab)
 
 
-# prepare the dataset of input to output pairs encoded as integers
 seq_length = 100
 dataX = []
 dataY = []
@@ -40,16 +35,11 @@ n_patterns = len(dataX)
 print ("Total Patterns: ", n_patterns)
 
 
-# reshape X to be [samples, time steps, features]
 X = numpy.reshape(dataX, (n_patterns, seq_length, 1))
-# normalize
 X = X / float(n_vocab)
-# one hot encode the output variable
 y = np_utils.to_categorical(dataY)
 
 
-
-# define the LSTM model
 model = Sequential()
 model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
 model.add(Dropout(0.2))
@@ -60,12 +50,10 @@ model.compile(loss='categorical_crossentropy', optimizer='adam')
 model.fit(X, y, epochs=20, batch_size=64)
 
 
-# pick a random seed
 start = numpy.random.randint(0, len(dataX)-1)
 pattern = dataX[2]
 print ("Seed:")
 print ("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
-# generate characters
 
 for i in range(1000):
 	x = numpy.reshape(pattern, (1, len(pattern), 1))
@@ -77,6 +65,5 @@ for i in range(1000):
 	sys.stdout.write(result)
 	pattern.append(index)
 	pattern = pattern[1:len(pattern)]
-print ("\nDone.")
 
 
